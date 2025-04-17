@@ -18,7 +18,7 @@ func NewProductService(productRepository productRepository) *ProductService {
 	}
 }
 
-func (s *ProductService) İmportProducts(productChan <-chan []models.CreateProduct) error {
+func (s *ProductService) ImportProducts(productChan <-chan []models.CreateProduct) error {
 
 	for batch := range productChan {
 

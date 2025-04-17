@@ -1,10 +1,9 @@
-package pkg
+package jsonread
 
 import (
 	"ReadProducts/models"
 	"bufio"
 	"encoding/json"
-	"log"
 	"os"
 )
 
@@ -29,8 +28,6 @@ func LoadProductsFromFile(filePath string, batchSize int, productChan chan<- []m
 
 	var batch []models.CreateProduct
 
-	log.Printf("Dosya okunuyor: %s", filePath)
-
 	for decoder.More() {
 
 		var product models.CreateProduct
@@ -44,7 +41,6 @@ func LoadProductsFromFile(filePath string, batchSize int, productChan chan<- []m
 		batch = append(batch, product)
 
 		if len(batch) >= batchSize {
-			log.Printf("Batch gönderiliyor (%s): %d ürün", filePath, len(batch))
 			productChan <- batch
 			batch = nil
 		}
@@ -52,7 +48,6 @@ func LoadProductsFromFile(filePath string, batchSize int, productChan chan<- []m
 	}
 
 	if len(batch) > 0 {
-		log.Printf("Kalan batch gönderiliyor (%s): %d ürün", filePath, len(batch))
 		productChan <- batch
 	}
 

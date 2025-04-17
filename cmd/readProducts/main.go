@@ -2,11 +2,12 @@ package main
 
 import (
 	"ReadProducts/models"
-	"ReadProducts/pkg"
+	"ReadProducts/pkg/jsonread"
 	"ReadProducts/pkg/psql"
 	"ReadProducts/repositories"
 	"ReadProducts/services"
 	"log"
+	_ "net/http/pprof"
 	"os"
 	"sync"
 
@@ -14,6 +15,7 @@ import (
 )
 
 func main() {
+
 	err := godotenv.Load("../../.env")
 
 	if err != nil {
@@ -47,7 +49,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := productService.İmportProducts(productChan); err != nil {
+		if err := productService.ImportProducts(productChan); err != nil {
 			log.Fatal("Batch işleme hatası:", err)
 		}
 	}()
@@ -58,9 +60,7 @@ func main() {
 		go func(f string) {
 			defer fileWg.Done()
 			sm <- struct{}{}
-			log.Printf("Başladı: %s", f)
-			//defer func() { <-sm }()
-			err := pkg.LoadProductsFromFile(f, batchSize, productChan)
+			err := jsonread.LoadProductsFromFile(f, batchSize, productChan)
 			if err != nil {
 				log.Printf("Dosya okuma hatası (%s): %v", f, err)
 			} else {
@@ -80,6 +80,3 @@ func main() {
 	log.Println("Tüm ürünler başarıyla aktarıldı")
 
 }
-
-//ZATEN DOSYADA OLAN ÜRÜNLER İÇİN DB YE GİTMESİN
-//PRODUTC'IN SADECE BELİRLİ BİR FİELDI DEĞİŞTİYSE UPDATE YAPALIM
